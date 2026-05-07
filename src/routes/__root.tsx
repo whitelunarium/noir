@@ -9,24 +9,22 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { CartDrawer } from "@/components/CartDrawer";
+import { Toaster } from "@/components/ui/sonner";
+import { useCartSync } from "@/hooks/useCartSync";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+        <p className="eyebrow text-muted-foreground mb-4">404</p>
+        <h1 className="font-display text-5xl font-black tracking-tighter">Page not found</h1>
+        <p className="mt-3 text-sm text-muted-foreground">The page you're looking for doesn't exist.</p>
+        <Link to="/" className="mt-8 inline-flex items-center bg-foreground text-background px-6 py-3 text-sm uppercase tracking-wider">
+          Back to home
+        </Link>
       </div>
     </div>
   );
@@ -35,32 +33,19 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <h1 className="font-display text-3xl font-black tracking-tighter">Something went wrong</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Try again or head back home.</p>
+        <div className="mt-6 flex gap-2 justify-center">
           <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={() => { router.invalidate(); reset(); }}
+            className="bg-foreground text-background px-5 py-2.5 text-xs uppercase tracking-wider"
           >
             Try again
           </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
+          <a href="/" className="border border-border px-5 py-2.5 text-xs uppercase tracking-wider">Home</a>
         </div>
       </div>
     </div>
@@ -72,21 +57,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "MONO/STR — Modern Streetwear Studio" },
+      { name: "description", content: "Editorial streetwear. Hoodies, longsleeves and shirts crafted in limited drops." },
+      { property: "og:title", content: "MONO/STR — Modern Streetwear Studio" },
+      { property: "og:description", content: "Editorial streetwear. Hoodies, longsleeves and shirts crafted in limited drops." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -108,12 +86,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppShell() {
+  useCartSync();
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SiteHeader />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <SiteFooter />
+      <CartDrawer />
+      <Toaster position="top-center" />
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AppShell />
     </QueryClientProvider>
   );
 }
